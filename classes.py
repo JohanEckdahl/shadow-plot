@@ -21,19 +21,22 @@ class PlotClass():
         for key, value in data.items(): setattr(self, key, value)
 
     def optics(self):
-        directory = "Scan{}/res/fig/setup.png".format(self.scan_number)
+        directory = "data/Scan{}/res/fig/setup.png".format(self.scan_number)
         display(Image(directory))
 
     def USGExtrema(self,):
         for legend, case in self.cases.items():
-            filename = "Scan{}/res/{}/fea_output_{}.tsv".format(self.scan_number, case,self.optical_element)
+            filename = "data/Scan{}/res/{}/fea_output_{}.tsv".format(self.scan_number, case,self.optical_element)
             try:
-                df = pd.read_csv(filename,delim_whitespace=True)
+                df = pd.read_csv(filename, delim_whitespace=True)
                 df.columns=['x','y','z','T','stress','def','strain','dStrain','CTE','TC']
                 max, min = df['dStrain'].max(), df['dStrain'].min()
                 #print("Case {}: Max, Min USG is {},{}".format(case, max,min))
                 print("Case {}: Max, Min USG is {},{}".format(case, max,min))
             except: print("Can't find Case {}".format(case))
+    
+    def AllUSG(self): pass
+	
 
     def plot(self):
         #Basic Plot Parameters
@@ -95,7 +98,7 @@ class PlotClass():
         # Save Plot to File
         try:
             self.filename
-            directory = "Scan{}/pyplot/".format(self.scan_number)
+            directory = "data/Scan{}/pyplot/".format(self.scan_number)
             if not os.path.exists(directory):
                 os.makedirs(directory)
             filename = directory + "{}.png".format(self.filename)
@@ -111,7 +114,7 @@ class CaseComparison(PlotClass):
 	
     def get_statistics(self, case, column_name=None, skip=4,):
         try:
-            statistics =  pd.read_csv("Scan{}/res/{}/{}_{}.tsv".format(self.scan_number, case,self.file,self.optical_element), 
+            statistics =  pd.read_csv("data/Scan{}/res/{}/{}_{}.tsv".format(self.scan_number, case,self.file,self.optical_element), 
                                    delim_whitespace=True, skiprows=skip, header=None, index_col=0)
             try:
                 self.statistics_column
@@ -182,8 +185,7 @@ class PowerPlot(CaseComparison):
              +" it comes to normalizing")
         super().plot()
 
-		
-	
+
 class AbsorbedPower(CaseComparison):
     title = 'Absorbed Power'
     y1label = 'Watts'
@@ -224,7 +226,7 @@ class Spectra(PlotClass):
 
     def get_spectrum(self, scan_number, case, energy, optical_element):
         try:
-            a = pd.read_csv("Scan{}/res/{}/{}_{}.tsv".format(scan_number, case, self.file, optical_element),
+            a = pd.read_csv("data/Scan{}/res/{}/{}_{}.tsv".format(scan_number, case, self.file, optical_element),
                             delim_whitespace=True, header=None, index_col=0, comment='#')
             y = a.loc[a.index == energy]
             y.set_index(self.index, inplace=True)
@@ -247,6 +249,8 @@ class Spectra(PlotClass):
             except: pass
             super().plot()
             if self.break_loop: break
+
+
 
 class Spectrum(Spectra):
     statistics_column = 2
@@ -272,6 +276,86 @@ class Deformation(Spectra):
 
 class DerDeformation(Deformation):
     statistics_column = 5 # 4 is x, 5 is y
+
+
+class BeamOffset(PlotClass):
+    break_loop = False
+    plot_size  = [10,6]
+    xlabel     = "angle ($\mu$rad)"
+    file       = 'focus_savg'
+    filename   = "shift_crystal_angle__"
+
+       
+    
+
+    def get_spectrum(self, scan_number, case, energy, optical_element, legend):
+            a = pd.read_csv("data/Scan{}/res/{}/{}_{}.tsv".format(scan_number, case, self.file, optical_element),
+                            delim_whitespace=True, header=None, index_col=0, comment='#')
+            y = a.loc[a.index == energy]
+            y2 = pd.DataFrame(index=[legend], columns=[self.y_name])
+            y2[self.y_name] = y[self.statistics_column].iloc[0]
+
+            return y2
+  
+
+    def plot(self):
+        for energy in self.energies:
+            i = 0
+            for legend, case in self.cases.items():
+                y2 = self.get_spectrum(self.scan_number, case, energy, self.optical_element, legend)
+                if i == 0: self.y1data = y2
+                else: self.y1data = pd.concat([self.y1data, y2])
+                i += 1
+
+            self.y1data = self.y1data.sort_index(ascending = True)
+            self.y1data -= self.y1data.loc[0, self.y1data.columns[0]]
+            print(self.__class__.__name__)
+            if self.__class__.__name__ in ["xcen", "zcen"]: self.y1data *= 10000
+            if self.__class__.__name__ in ["xpcen", "zpcen"]: self.y1data *= 1000000
+            #self.y1data['x'] = self.y1data.x.rolling(1).mean()
+            #self.y1data['x'] = self.y1data.x.interpolate(method = "linear")
+            try: self.filename += str(energy) + "eV"
+            except: pass
+            super().plot()
+            if self.break_loop: break
+
+                
+class xcen(BeamOffset):
+    title = "Beam offset at sample position in x"
+    y_name = 'x'
+    statistics_column = 7
+    y1label = 'beam x shift ($\mu$m)'
+    filename= BeamOffset.filename + "x_offset"
+                
+                
+class zcen(BeamOffset):
+    title = "Beam offset at sample position in z"
+    y_name = 'z'
+    statistics_column = 8
+    y1label = 'beam z shift ($\mu$m)'
+    filename = BeamOffset.filename +  "z_offset"
+
+    
+class xpcen(BeamOffset):
+    title = "Beam offset at sample position in xp"
+    y_name = 'xp'
+    statistics_column = 17
+    y1label = 'beam xp shift ($\mu$rad)'
+    filename = BeamOffset.filename + "xp_offset"
+    
+class zpcen(BeamOffset):
+    title = "Beam offset at sample position in zp"
+    y_name = 'zp'
+    statistics_column = 18
+    y1label = 'beam zp shift ($\mu$rad)'
+    filename = BeamOffset.filename + "zp_offset"
+               
+                
+
+
+
+
+
 
 class USG():
     save_figure = False

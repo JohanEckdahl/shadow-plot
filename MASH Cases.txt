@@ -1,0 +1,89 @@
+Case 1
+Gaussian, Bare 333 Crystal, 4 cases
+
+Case 2
+Gaussian, Bare 333 Crystal, varying power
+
+Case 3
+Gaussian, Bare 333 Crystal, varying source size
+
+Case 4
+Gaussian, Bare 333 Crystal, varying distance
+
+Case 5
+Gaussian, Bare 333 Crystal, varying divergence
+
+Case 6
+Not Working Well
+
+Case 7
+Gaussian, Bare 333 Crystal, changing angle
+
+Case 8
+Gaussian, Bare 111 Crystal, 4 cases
+
+Case 9
+idk
+
+Case 10
+IVU, Bare 111 Crystal, 0.0003 bandwidth, perfect vs strain-deformation
+
+Case 11
+IVU, Bare 333 Crystal, 1e-5 bandwidth, perfect vs strain-deformation
+
+Case 12
+Balder Angle Scan 333
+
+Case 13
+ForMAX Fluid Model
+
+Case 14
+NanoMAX Simulation
+
+Case 15
+BioMAX Simulation
+
+Case 16
+IVU, Bare 111 Crystal, 10e-5 bandwidth, perfect vs strain-deformation
+
+Case 17
+IVU, Bare 333 Crystal, 10e-4 bandwidth, perfect vs strain-deformation
+
+Case 18
+Balder Miller Index/Bandwidth Scan
+
+Case 19
+idk
+
+Case 20
+IVU, Bare 111 Crystal, 0.0003 bandwidth, 2nd crystal angle
+
+Case 21
+IVU, Bare 333 Crystal, 1e-5 bandwidth, perfect vs strain-deformation
+
+Case 22
+IVW Bare 333 Crystal, collimating mirror, 10e-5 bandwidth, perfect vs strain-deformation
+
+Case 23
+*ForMAX Fluid Model
+
+Case 24
+*NanoMAX Simulation
+
+Case 25
+*BioMAX Simulation
+
+Case 26
+IVU, Bare 111 Crystal, 10e-5 bandwidth, perfect vs strain-deformation
+
+Case 27
+IVU, Bare 333 Crystal, 10e-4 bandwidth, 2nd crystal	angle scan
+
+Case 30
+ForMAX, Miller Index/Bandwidth Scan
+
+Case 31
+ForMAX Angle Scan 333
+
+Case 32
+ForMAX, Miller Index/Bandwidth Scan
